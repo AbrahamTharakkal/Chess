@@ -16,7 +16,7 @@ white_sprites = pygame.sprite.Group()
 black_sprites = pygame.sprite.Group()
 pieces = []
 
-colors = [(82, 47, 30),(139,69,19)]
+colors = [(139,69,19),(82, 47, 30)]
 
 for i in range(8):
     for j in range(8):
@@ -60,6 +60,7 @@ def reset():
   white_sprites.add(king)
   white_sprites.add(queen)
   # -------------------------WHITE SETUP--------------------------
+  # -------------------------BLACK SETUP--------------------------
   for i in range(8):
     piece = Pieces('p',2,Pieces.char_lst[i],BLACK,i+1)
     all_sprites.add(piece)
@@ -92,7 +93,9 @@ def reset():
     pieces.append(sprite)
   for sprite in white_sprites:
     pieces.append(sprite)
+  # -------------------------BLACK SETUP--------------------------
 
+flag = 0
 mouse_square = None
 reset()
 while True:
@@ -105,16 +108,26 @@ while True:
         mouseX = pygame.mouse.get_pos()[0]
         mouseY = pygame.mouse.get_pos()[1]
         mousepos = [mouseX,mouseY]
-        for key in POSITIONS:
-          if mousepos[0] >= POSITIONS[key][0] and mousepos[0] <= POSITIONS[key][2] and mousepos[1] >= POSITIONS[key][2] and mousepos[1] >= POSITIONS[key][3]:
-            mouse_square = key
-            print(mouse_square)
-        for sprite in pieces:
-          if sprite.row_char + str(sprite.col_num) == key:
-            print('taken')
-          else:
-            print('open')
-          break
+        if flag == 1:
+          for piece in pieces:
+            if not piece.ID(mouseX,mouseY):
+              flag = 0
+              mouse_square = (piece.find_pos(mouseX,mouseY), piece.color_str, piece.piece, piece.id)
+              piece.row_char = mouse_square[0][0]
+              piece.col_num = int(mouse_square[0][1])
+              print('open',mouse_square[0])
+              break
+        elif flag == 0:
+          for piece in pieces:
+            if piece.ID(mouseX,mouseY):
+              flag += 1
+              mouse_square = (piece.row_char + str(piece.col_num), piece.color_str, piece.piece, piece.id)
+              print('taken')
 
+  for piece in pieces:
+    piece.move()
+  for i in range(8):
+    for j in range(8):
+        pygame.draw.rect(DISPLAYSURF, colors[(j+i)%2], (75*j,75*i,75,75))
   all_sprites.draw(DISPLAYSURF)
   pygame.display.update()
