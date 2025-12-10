@@ -98,6 +98,9 @@ def reset():
 flag = 0
 mouse_square = None
 reset()
+chosen = None
+taken = False
+can_move = False
 while True:
   for event in pygame.event.get():
     if event.type == QUIT:
@@ -110,22 +113,30 @@ while True:
         mousepos = [mouseX,mouseY]
         if flag == 1:
           for piece in pieces:
-            if not piece.ID(mouseX,mouseY):
-              flag = 0
-              mouse_square = (piece.find_pos(mouseX,mouseY), piece.color_str, piece.piece, piece.id)
-              piece.row_char = mouse_square[0][0]
-              piece.col_num = int(mouse_square[0][1])
-              print('open',mouse_square[0])
+            if piece.ID(mouseX,mouseY):
+              can_move = False
+              taken = True
               break
+          if not taken:
+            taken = False
+            can_move = True
+            mouse_square = (piece.find_pos(mouseX,mouseY), piece.color_str, piece.piece, piece.id)
+            piece.row_char = mouse_square[0][0]
+            piece.col_num = int(mouse_square[0][1])
+            print('open',mouse_square)
         elif flag == 0:
           for piece in pieces:
             if piece.ID(mouseX,mouseY):
-              flag += 1
+              flag = 1
+              if not chosen:
+                chosen = piece
               mouse_square = (piece.row_char + str(piece.col_num), piece.color_str, piece.piece, piece.id)
-              print('taken')
-
-  for piece in pieces:
-    piece.move()
+              print('taken',mouse_square)
+  if chosen and can_move:
+    chosen.move()
+    flag = 0
+    chosen = None
+    can_move = False
   for i in range(8):
     for j in range(8):
         pygame.draw.rect(DISPLAYSURF, colors[(j+i)%2], (75*j,75*i,75,75))
