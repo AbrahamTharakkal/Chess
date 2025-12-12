@@ -19,6 +19,7 @@ class Pieces(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = Pieces.char_lst.index(self.row_char) * 75
         self.rect.y = (int(self.col_num)-1) * 75
+        self.chosen = False
         if self.piece == 'p':
             pygame.draw.polygon(self.image,self.color,((0,75),(75,75),(75,0)))
         if self.piece == 'r':
@@ -37,9 +38,9 @@ class Pieces(pygame.sprite.Sprite):
                 row_char = pos[0]
                 col_num = int(pos[1])
         return row_char + str(col_num)
-    def move(self):
-        self.rect.x = Pieces.char_lst.index(self.row_char) * 75
-        self.rect.y = (int(self.col_num)-1) * 75
+    def move(self,new_char,new_col):
+        self.rect.x = Pieces.char_lst.index(new_char) * 75
+        self.rect.y = (int(new_col)-1) * 75
     def ID(self,mx,my):
         if (mx >= self.rect.x and mx <= self.rect.x + 75) and (my >= self.rect.y and my <= self.rect.y +75):
             # print('taken',mx,my)

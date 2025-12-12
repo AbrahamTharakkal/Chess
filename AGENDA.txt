@@ -1,0 +1,6 @@
+STEP 1: Create pieces/board       ---DONE---
+STEP 2: Make all pieces move      ---DONE---
+STEP 3: Enforce turns
+STEP 4: Add the rules
+STEP 5: Add images
+STEP 6: Add AI
