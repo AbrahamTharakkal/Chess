@@ -1,5 +1,6 @@
 import pygame
 from constants import *
+import chess
 class Pieces(pygame.sprite.Sprite):
     char_lst = ['a','b','c','d','e','f','g','h']
     def __init__(self,piece,col_num,row_char,color,ID):
@@ -20,6 +21,7 @@ class Pieces(pygame.sprite.Sprite):
         self.rect.x = Pieces.char_lst.index(self.row_char) * 75
         self.rect.y = (int(self.col_num)-1) * 75
         self.chosen = False
+        self.taking = False
         if self.piece == 'p':
             pygame.draw.polygon(self.image,self.color,((0,75),(75,75),(75,0)))
         if self.piece == 'r':
@@ -48,3 +50,19 @@ class Pieces(pygame.sprite.Sprite):
         else:
             # print('open',mx,my)
             return False
+    def check(self,board,new_char,new_col):
+        # if self.piece == 'p':
+        #     pass
+        # else:
+            # print(chess.Move.from_uci(self.row_char + str(self.col_num) + new_char + str(new_col)) in board.legal_moves)
+            print(self.row_char + str(self.col_num) + new_char + str(new_col))
+            if self.row_char + str(self.col_num) != new_char + str(new_col):
+                move = chess.Move.from_uci(self.row_char + str(self.col_num) + new_char + str(new_col))
+            else:
+                move = chess.Move.from_uci('0000')
+            if move in board.legal_moves:
+                return True
+            else:
+                return False
+    def eliminate(self):
+        del self
