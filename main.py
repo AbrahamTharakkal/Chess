@@ -98,6 +98,7 @@ def reset():
     pieces.append(sprite)
   # -------------------------WHITE SETUP--------------------------
 
+end_game = False
 flag = 0
 mouse_square = None
 reset()
@@ -109,6 +110,9 @@ old_pos = None
 turn_count = 0
 while True:
   for event in pygame.event.get():
+    if end_game:
+      pygame.quit()
+      sys.exit()
     if event.type == QUIT:
       pygame.quit()
       sys.exit()
@@ -123,26 +127,23 @@ while True:
           chosen.taking = False
           for piece in pieces:
             if piece.ID(mouseX,mouseY):
-              if chosen.check(board,chosen.find_pos(mouseX,mouseY)[0],chosen.find_pos(mouseX,mouseY)[1]):
+              if chosen.check(board,chosen.find_pos(mouseX,mouseY)[0],chosen.find_pos(mouseX,mouseY)[1])[0]:
                 taken = False
                 can_move = True
-
-                # old_pos = piece.find_pos(mouseX,mouseY)
-
                 mouse_square = (chosen.find_pos(mouseX,mouseY), chosen.color_str, chosen.piece, chosen.id)
                 chosen.row_char = mouse_square[0][0]
                 chosen.col_num = int(mouse_square[0][1])
                 destination = [mouse_square[0][0],int(mouse_square[0][1])]
-                for piece in pieces:
-                  if piece.row_char == mouse_square[0][0] and piece.col_num == int(mouse_square[0][1]):
-                    all_sprites.remove(piece)
+                for piecee in pieces:
+                  if piecee.row_char == mouse_square[0][0] and piecee.col_num == int(mouse_square[0][1]) and piecee != chosen:
+                    all_sprites.remove(piecee)
                     chosen.taking = True
-                    if piece.color_str == "WHITE":
-                      white_sprites.remove(piece)
+                    if piecee.color_str == "WHITE":
+                      white_sprites.remove(piecee)
                     else:
-                      black_sprites.remove(piece)
-                    pieces.pop(pieces.index(piece))
-                    piece.eliminate()
+                      black_sprites.remove(piecee)
+                    pieces.pop(pieces.index(piecee))
+                    piecee.eliminate()
                     break
                 break
               else:
@@ -153,9 +154,9 @@ while True:
                 chosen = None
                 break
           if not taken:
-            print(chosen.check(board,chosen.find_pos(mouseX,mouseY)[0],chosen.find_pos(mouseX,mouseY)[1]))
-            print(chosen.color_str,chosen.piece,chosen.find_pos(mouseX,mouseY)[0],chosen.find_pos(mouseX,mouseY)[1])
-            if chosen.check(board,chosen.find_pos(mouseX,mouseY)[0],chosen.find_pos(mouseX,mouseY)[1]):
+            print(chosen.check(board,chosen.find_pos(mouseX,mouseY)[0],chosen.find_pos(mouseX,mouseY)[1])[0],'chosen.check')
+            print(chosen.color_str,chosen.piece,chosen.find_pos(mouseX,mouseY)[0],chosen.find_pos(mouseX,mouseY)[1],'chosen')
+            if chosen.check(board,chosen.find_pos(mouseX,mouseY)[0],chosen.find_pos(mouseX,mouseY)[1])[0]:
               taken = False
               chosen.taking = False
               can_move = True
@@ -180,15 +181,19 @@ while True:
                 mouse_square = (piece.row_char + str(piece.col_num), piece.color_str, piece.piece, piece.id)
                 # print('taken',mouse_square)
   if chosen and can_move:
-    print(chosen.chosen, chosen.row_char + str(chosen.col_num), chosen.color_str, chosen.piece, chosen.id)
+    # print(board.is_castling(chosen.check(board,chosen.find_pos(mouseX,mouseY)[0],chosen.find_pos(mouseX,mouseY)[1])[1]),'is castle old')
+    print(old_pos[0][0]+old_pos[1] + destination[0]+str(destination[1]),'final destination')
+    print(chosen.chosen, chosen.row_char + str(chosen.col_num), chosen.color_str, chosen.piece, chosen.id,'chosen')
     # if piece.color_str == 'WHITE':
-    print(destination[0]+str(destination[1]))
+    # print(destination[0]+str(destination[1]),'destination')
     if chosen.piece == 'p':
       if chosen.taking:
         board.push_san(old_pos[0][0]+'x'+destination[0]+str(destination[1]))
         old_pos = None
       else:
         board.push_san(destination[0]+str(destination[1]))
+    elif board.is_castling(chess.Move.from_uci(old_pos[0][0]+old_pos[1] + destination[0]+str(destination[1]))):
+      board.push(chess.Move.from_uci(old_pos[0][0]+old_pos[1] + destination[0]+str(destination[1])))
     else:
       board.push_san(chosen.piece.upper()+destination[0]+str(destination[1]))
     print(board)
@@ -203,5 +208,7 @@ while True:
   for i in range(8):
     for j in range(8):
         pygame.draw.rect(DISPLAYSURF, colors[(j+i)%2], (75*j,75*i,75,75))
+  if board.is_checkmate():
+    end_game = True
   all_sprites.draw(DISPLAYSURF)
   pygame.display.update()

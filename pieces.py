@@ -61,8 +61,9 @@ class Pieces(pygame.sprite.Sprite):
             else:
                 move = chess.Move.from_uci('0000')
             if move in board.legal_moves:
-                return True
+                print(True, move,'islegal/move')
+                return (True, move)
             else:
-                return False
+                return (False, move)
     def eliminate(self):
         del self
