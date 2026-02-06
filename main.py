@@ -4,6 +4,7 @@ from pygame.locals import QUIT
 from constants import *
 from pieces import Pieces
 import chess
+import math
 
 board = chess.Board()
 
@@ -20,6 +21,7 @@ black_sprites = pygame.sprite.Group()
 pieces = []
 
 colors = [(139,69,19),(82, 47, 30)]
+piececolors = [(255,255,255),'','','','','','',(0,0,0)]
 
 for i in range(8):
     for j in range(8):
@@ -154,8 +156,8 @@ while True:
                 chosen = None
                 break
           if not taken:
-            print(chosen.check(board,chosen.find_pos(mouseX,mouseY)[0],chosen.find_pos(mouseX,mouseY)[1])[0],'chosen.check')
-            print(chosen.color_str,chosen.piece,chosen.find_pos(mouseX,mouseY)[0],chosen.find_pos(mouseX,mouseY)[1],'chosen')
+            # print(chosen.check(board,chosen.find_pos(mouseX,mouseY)[0],chosen.find_pos(mouseX,mouseY)[1])[0],'chosen.check')
+            # print(chosen.color_str,chosen.piece,chosen.find_pos(mouseX,mouseY)[0],chosen.find_pos(mouseX,mouseY)[1],'chosen')
             if chosen.check(board,chosen.find_pos(mouseX,mouseY)[0],chosen.find_pos(mouseX,mouseY)[1])[0]:
               taken = False
               chosen.taking = False
@@ -183,7 +185,7 @@ while True:
   if chosen and can_move:
     # print(board.is_castling(chosen.check(board,chosen.find_pos(mouseX,mouseY)[0],chosen.find_pos(mouseX,mouseY)[1])[1]),'is castle old')
     print(old_pos[0][0]+old_pos[1] + destination[0]+str(destination[1]),'final destination')
-    print(chosen.chosen, chosen.row_char + str(chosen.col_num), chosen.color_str, chosen.piece, chosen.id,'chosen')
+    # print(chosen.chosen, chosen.row_char + str(chosen.col_num), chosen.color_str, chosen.piece, chosen.id,'chosen')
     # if piece.color_str == 'WHITE':
     # print(destination[0]+str(destination[1]),'destination')
     if chosen.piece == 'p':
@@ -193,10 +195,52 @@ while True:
       else:
         board.push_san(destination[0]+str(destination[1]))
     elif board.is_castling(chess.Move.from_uci(old_pos[0][0]+old_pos[1] + destination[0]+str(destination[1]))):
+      oldposmatch = [i for i in range(len(Pieces.char_lst)) if old_pos[0][0] in Pieces.char_lst[i]][0]
+      newmatch = [i for i in range(len(Pieces.char_lst)) if destination[0] in Pieces.char_lst[i]][0]
+      print(oldposmatch,newmatch,'matches')
       board.push(chess.Move.from_uci(old_pos[0][0]+old_pos[1] + destination[0]+str(destination[1])))
+      # rook_placement = (math.ceil(((Pieces.char_lst[oldposmatch + 1]) + (Pieces.char_lst[newmatch + 1]))/2) - 1,piececolors.index(chosen.color)+1)
+      rook_placement = (piececolors.index(chosen.color)+1,Pieces.char_lst[math.ceil((oldposmatch + newmatch)/2)])
+      print(rook_placement)
+      if chosen.color_str == 'WHITE':
+        if chosen.row_char == 'g':
+          for piece in pieces:
+            if piece.row_char == 'h' and piece.color_str == 'WHITE' and piece.piece == 'r':
+              piece.row_char = rook_placement[1]
+              piece.col_num = rook_placement[0]
+              piece.move(rook_placement[1],rook_placement[0])
+        elif chosen.row_char == 'c':
+          for piece in pieces:
+            if piece.row_char == 'h' and piece.color_str == 'WHITE' and piece.piece == 'r':
+              piece.row_char = rook_placement[1]
+              piece.col_num = rook_placement[0]
+              piece.move(rook_placement[1],rook_placement[0])
+      elif chosen.color_str == 'BLACK':
+        if chosen.row_char == 'g':
+          for piece in pieces:
+            if piece.row_char == 'h' and piece.color_str == 'BLACK' and piece.piece == 'r':
+              piece.row_char = rook_placement[1]
+              piece.col_num = rook_placement[0]
+              piece.move(rook_placement[1],rook_placement[0])
+        elif chosen.row_char == 'c':
+          for piece in pieces:
+            if piece.row_char == 'h' and piece.color_str == 'BLACK' and piece.piece == 'r':
+              piece.row_char = rook_placement[1]
+              piece.col_num = rook_placement[0]
+              piece.move(rook_placement[1],rook_placement[0])
+      # for piece in pieces:
+      #   # if Pieces.char_lst.index(rook_placement[0]) == piece.row_char and rook_placement[1] == piece.col_num:
+      #   if Pieces.char_lst[rook_placement[1]-1] == piece.row_char and rook_placement[0] == piece.col_num:
+      #     if piece.piece == 'r':
+      #       piece.row_char = Pieces.char_lst.index(rook_placement[0])
+      #       piece.col_num = rook_placement[1]
+      #       piece.move(Pieces.char_lst.index(rook_placement[0]),rook_placement[1])
+      #       break
+
+
     else:
       board.push_san(chosen.piece.upper()+destination[0]+str(destination[1]))
-    print(board)
+    # print(board)
     chosen.move(destination[0],destination[1])
     flag = 0
     chosen.taking = False
