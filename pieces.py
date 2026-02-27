@@ -22,6 +22,7 @@ class Pieces(pygame.sprite.Sprite):
         self.rect.y = (int(self.col_num)-1) * 75
         self.chosen = False
         self.taking = False
+        self.promoting = False
         if self.piece == 'p':
             pygame.draw.polygon(self.image,self.color,((0,75),(75,75),(75,0)))
         if self.piece == 'r':
@@ -57,7 +58,14 @@ class Pieces(pygame.sprite.Sprite):
             # print(chess.Move.from_uci(self.row_char + str(self.col_num) + new_char + str(new_col)) in board.legal_moves)
             print(self.row_char + str(self.col_num) + new_char + str(new_col))
             if self.row_char + str(self.col_num) != new_char + str(new_col):
-                move = chess.Move.from_uci(self.row_char + str(self.col_num) + new_char + str(new_col))
+                if self.piece == 'p' and self.color_str == 'WHITE' and new_col == '8':
+                    move = chess.Move.from_uci(self.row_char + str(self.col_num) + new_char + str(new_col) + 'q')
+                    self.promoting = True
+                elif self.piece =='p' and self.color_str == 'BLACK' and new_col == '1':
+                    move = chess.Move.from_uci(self.row_char + str(self.col_num) + new_char + str(new_col) + 'q')
+                    self.promoting = True
+                else:
+                    move = chess.Move.from_uci(self.row_char + str(self.col_num) + new_char + str(new_col))
             else:
                 move = chess.Move.from_uci('0000')
             if move in board.legal_moves:

@@ -1,10 +1,12 @@
 import sys
 import pygame
+import pygame_gui
 from pygame.locals import QUIT
 from constants import *
 from pieces import Pieces
 import chess
 import math
+import pygame_gui
 
 board = chess.Board()
 
@@ -15,6 +17,8 @@ pygame.init()
 
 DISPLAYSURF = pygame.display.set_mode(SCREEN_SIZE)
 pygame.display.set_caption('Chess.com')
+manager = pygame_gui.UIManager((600,600))
+
 all_sprites = pygame.sprite.Group()
 white_sprites = pygame.sprite.Group()
 black_sprites = pygame.sprite.Group()
@@ -26,6 +30,8 @@ piececolors = [(255,255,255),'','','','','','',(0,0,0)]
 for i in range(8):
     for j in range(8):
         pygame.draw.rect(DISPLAYSURF, colors[(j+i)%2], (75*j,75*i,75,75))
+
+clock = pygame.time.Clock()
 
 # pawn = Pieces('p',2,'a',WHITE,1)
 # bishop = Pieces('b',1,'c',WHITE,1)
@@ -100,6 +106,56 @@ def reset():
     pieces.append(sprite)
   # -------------------------WHITE SETUP--------------------------
 
+
+queen_option = pygame_gui.elements.UIButton(
+  relative_rect=pygame.Rect((0,0),(50,50)),
+  text='Q',
+  manager=manager
+)
+knight_option = pygame_gui.elements.UIButton(
+  relative_rect=pygame.Rect((50,0),(50,50)),
+  text='K',
+  manager=manager
+)
+rook_option = pygame_gui.elements.UIButton(
+  relative_rect=pygame.Rect((100,0),(50,50)),
+  text='R',
+  manager=manager
+)
+bishop_option = pygame_gui.elements.UIButton(
+  relative_rect=pygame.Rect((150,0),(50,50)),
+  text='B',
+  manager=manager
+  )
+queen_optionb = pygame_gui.elements.UIButton(
+  relative_rect=pygame.Rect((0,550),(50,50)),
+  text='Q',
+  manager=manager
+)
+knight_optionb = pygame_gui.elements.UIButton(
+  relative_rect=pygame.Rect((50,550),(50,50)),
+  text='K',
+  manager=manager
+)
+rook_optionb = pygame_gui.elements.UIButton(
+  relative_rect=pygame.Rect((100,550),(50,50)),
+  text='R',
+  manager=manager
+)
+bishop_optionb = pygame_gui.elements.UIButton(
+  relative_rect=pygame.Rect((150,550),(50,50)),
+  text='B',
+  manager=manager
+)
+queen_option.hide()
+knight_option.hide()
+rook_option.hide()
+bishop_option.hide()
+queen_optionb.hide()
+knight_optionb.hide()
+rook_optionb.hide()
+bishop_optionb.hide()
+
 end_game = False
 flag = 0
 mouse_square = None
@@ -110,7 +166,11 @@ can_move = False
 destination = [None,None]
 old_pos = None
 turn_count = 0
+pflag = 0
+promotion_piece = None
+
 while True:
+  time_delta = clock.tick(60) / 1000.0
   for event in pygame.event.get():
     if end_game:
       pygame.quit()
@@ -118,6 +178,33 @@ while True:
     if event.type == QUIT:
       pygame.quit()
       sys.exit()
+      # ----------button events----------------
+      if event.type == pygame_gui.UI_BUTTON_PRESSED:
+        if event.ui_element == queen_option:
+          promotion_piece = 'Q'
+        if event.ui_element == knight_option:
+          promotion_piece = 'N'
+        if event.ui_element == rook_option:
+          promotion_piece = 'R'
+        if event.ui_element == bishop_option:
+          promotion_piece = 'B'
+        if event.ui_element == queen_optionb:
+          promotion_piece = 'Q'
+        if event.ui_element == knight_optionb:
+          promotion_piece = 'N'
+        if event.ui_element == rook_optionb:
+          promotion_piece = 'R'
+        if event.ui_element == bishop_optionb:
+          promotion_piece = 'B'
+        queen_option.hide()
+        knight_option.hide()
+        rook_option.hide()
+        bishop_option.hide()
+        queen_optionb.hide()
+        knight_optionb.hide()
+        rook_optionb.hide()
+        bishop_optionb.hide()
+      # ----------button events----------------
     if event.type == pygame.MOUSEBUTTONDOWN:
       if pygame.mouse.get_pressed()[0]:
         mouseX = pygame.mouse.get_pos()[0]
@@ -189,7 +276,47 @@ while True:
     # if piece.color_str == 'WHITE':
     # print(destination[0]+str(destination[1]),'destination')
     if chosen.piece == 'p':
-      if chosen.taking:
+      if chosen.taking and chosen.promoting:
+        if pflag == 0:
+          if chosen.color_str == 'WHITE':
+            queen_option.show()
+            knight_option.show()
+            rook_option.show()
+            bishop_option.show()
+          elif chosen.color_str == 'BLACK':
+            queen_optionb.show()
+            knight_optionb.show()
+            rook_optionb.show()
+            bishop_optionb.show()
+          pflag = 1
+        elif pflag == 1:
+          if promotion_piece != None:
+            board.push_san(old_pos[0][0]+'x'+destination[0]+str(destination[1])+f'={promoting_piece}')
+            old_pos = None
+            pflag = 0
+            promoting_piece = None
+
+      elif chosen.promoting:
+        if pflag == 0:
+          if chosen.color_str == 'WHITE':
+            queen_option.show()
+            knight_option.show()
+            rook_option.show()
+            bishop_option.show()
+          elif chosen.color_str == 'BLACK':
+            queen_optionb.show()
+            knight_optionb.show()
+            rook_optionb.show()
+            bishop_optionb.show()
+          pflag = 1
+        elif pflag == 1:
+          if promotion_piece != None:
+            board.push_san(old_pos[0][0]+'x'+destination[0]+str(destination[1])+f'={promoting_piece}')
+            old_pos = None
+            pflag = 0
+            promoting_piece = None
+            chosen.promoting = False
+      elif chosen.taking:
         board.push_san(old_pos[0][0]+'x'+destination[0]+str(destination[1]))
         old_pos = None
       else:
@@ -240,7 +367,7 @@ while True:
 
     else:
       board.push_san(chosen.piece.upper()+destination[0]+str(destination[1]))
-    # print(board)
+    print(board)
     chosen.move(destination[0],destination[1])
     flag = 0
     chosen.taking = False
@@ -254,5 +381,7 @@ while True:
         pygame.draw.rect(DISPLAYSURF, colors[(j+i)%2], (75*j,75*i,75,75))
   if board.is_checkmate():
     end_game = True
+  manager.draw_ui(DISPLAYSURF)
   all_sprites.draw(DISPLAYSURF)
   pygame.display.update()
+  clock.tick(60)
