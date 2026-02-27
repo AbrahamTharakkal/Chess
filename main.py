@@ -179,31 +179,31 @@ while True:
       pygame.quit()
       sys.exit()
       # ----------button events----------------
-      if event.type == pygame_gui.UI_BUTTON_PRESSED:
-        if event.ui_element == queen_option:
-          promotion_piece = 'Q'
-        if event.ui_element == knight_option:
-          promotion_piece = 'N'
-        if event.ui_element == rook_option:
-          promotion_piece = 'R'
-        if event.ui_element == bishop_option:
-          promotion_piece = 'B'
-        if event.ui_element == queen_optionb:
-          promotion_piece = 'Q'
-        if event.ui_element == knight_optionb:
-          promotion_piece = 'N'
-        if event.ui_element == rook_optionb:
-          promotion_piece = 'R'
-        if event.ui_element == bishop_optionb:
-          promotion_piece = 'B'
-        queen_option.hide()
-        knight_option.hide()
-        rook_option.hide()
-        bishop_option.hide()
-        queen_optionb.hide()
-        knight_optionb.hide()
-        rook_optionb.hide()
-        bishop_optionb.hide()
+    if event.type == pygame_gui.UI_BUTTON_PRESSED:
+      if event.ui_element == queen_option:
+        promotion_piece = 'Q'
+      if event.ui_element == knight_option:
+        promotion_piece = 'N'
+      if event.ui_element == rook_option:
+        promotion_piece = 'R'
+      if event.ui_element == bishop_option:
+        promotion_piece = 'B'
+      if event.ui_element == queen_optionb:
+        promotion_piece = 'Q'
+      if event.ui_element == knight_optionb:
+        promotion_piece = 'N'
+      if event.ui_element == rook_optionb:
+        promotion_piece = 'R'
+      if event.ui_element == bishop_optionb:
+        promotion_piece = 'B'
+      queen_option.hide()
+      knight_option.hide()
+      rook_option.hide()
+      bishop_option.hide()
+      queen_optionb.hide()
+      knight_optionb.hide()
+      rook_optionb.hide()
+      bishop_optionb.hide()
       # ----------button events----------------
     if event.type == pygame.MOUSEBUTTONDOWN:
       if pygame.mouse.get_pressed()[0]:
@@ -291,10 +291,11 @@ while True:
           pflag = 1
         elif pflag == 1:
           if promotion_piece != None:
-            board.push_san(old_pos[0][0]+'x'+destination[0]+str(destination[1])+f'={promoting_piece}')
+            board.push_san(old_pos[0][0]+'x'+destination[0]+str(destination[1])+f'={promotion_piece}')
             old_pos = None
             pflag = 0
             promoting_piece = None
+            chosen.promoting = False
 
       elif chosen.promoting:
         if pflag == 0:
@@ -311,7 +312,7 @@ while True:
           pflag = 1
         elif pflag == 1:
           if promotion_piece != None:
-            board.push_san(old_pos[0][0]+'x'+destination[0]+str(destination[1])+f'={promoting_piece}')
+            board.push_san(old_pos[0][0]+'x'+destination[0]+str(destination[1])+f'={promotion_piece}')
             old_pos = None
             pflag = 0
             promoting_piece = None
