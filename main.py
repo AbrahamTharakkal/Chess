@@ -364,6 +364,7 @@ while True:
       #       piece.col_num = rook_placement[1]
       #       piece.move(Pieces.char_lst.index(rook_placement[0]),rook_placement[1])
       #       break
+      # 
 
 
     else:
